@@ -2,7 +2,7 @@
   "component": {
     "com.omegga.telemetry": {
       "author": "Oben Sustam",
-      "version": "1.0.4",
+      "version": "1.0.5",
       "build": {
         "build_system": "zip",
         "options": {
@@ -10,7 +10,7 @@
         }
       },
       "publish": {
-        "bucket": "robot-components",
+        "bucket": "telemetry-components",
         "region": "eu-central-1"
       }
     }

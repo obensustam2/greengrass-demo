@@ -8,9 +8,9 @@ Greengrass Nucleus
 AWS IoT Core
         ↓ MQTT over TLS (port 8883)
 subscriber.py
-        ↓ influxdb-client
+        ↓ HTTP (influxdb-client uses REST API over HTTP)
 InfluxDB
-        ↓ Flux queries
+        ↓ HTTP (Grafana queries InfluxDB via REST API)
 Grafana Dashboard
 ```
 
@@ -92,12 +92,11 @@ python3 main.py --mock --robot-id robot-001
 
 ### Deploy via Greengrass
 ```bash
-# Build and deploy locally
+# Build component locally 
 gdk component build
 
-sudo /greengrass/v2/bin/greengrass-cli deployment create \
-  --remove "com.omegga.RobotTelemetry" \
-  --merge "com.omegga.telemetry=1.0.4"
+# Deploy component locally
+sudo /greengrass/v2/bin/greengrass-cli deployment create --merge "com.omegga.telemetry=1.0.5"
 
 # Publish component to IoT Core
 gdk component publish
@@ -114,11 +113,41 @@ aws greengrassv2 create-deployment \
   --components '{
     "aws.greengrass.Nucleus":  {"componentVersion":"2.17.0"},
     "aws.greengrass.Cli":      {"componentVersion":"2.17.0"},
-    "com.omegga.telemetry":    {"componentVersion":"1.0.4"}
+    "com.omegga.telemetry":    {"componentVersion":"1.0.5"}
   }' \
   --region eu-central-1
 ```
 
+### Info
+#### {artifacts:decompressedPath}
+When the Nucleus unpacks greengrass-telemetry.zip, it places the contents somewhere on the robot's filesystem like:
+```bash
+/greengrass/v2/packages/artifacts-unarchived/com.omegga.telemetry/1.0.5/
+```
+That full path is what {artifacts:decompressedPath} resolves to. 
+
+#### --target-arn
+```bash
+arn:partition:service:region:account-id:resource
+ │      │        │       │        │         │
+ │      │        │       │        │         └── what specifically
+ │      │        │       │        └──────────── your AWS account
+ │      │        │       └───────────────────── where
+ │      │        └───────────────────────────── which AWS service
+ │      └────────────────────────────────────── aws / aws-cn / aws-us-gov
+ └───────────────────────────────────────────── always "arn"
+```
+
+```bash
+arn:aws:iot:eu-central-1:407847267876:thing/GreengrassQuickStartCore-19e304494e5
+ │    │   │       │            │          │
+ │    │   │       │            │          └── resource type/name
+ │    │   │       │            └──────────── your account ID
+ │    │   │       └───────────────────────── Frankfurt region
+ │    │   └───────────────────────────────── IoT Core service
+ │    └───────────────────────────────────── standard AWS
+ └────────────────────────────────────────── always "arn"
+ ```
 ---
 
 ## 2. Start InfluxDB + Grafana
@@ -129,6 +158,9 @@ docker compose up -d
 
 - InfluxDB: http://localhost:8086 (admin / adminpassword)
 - Grafana:  http://localhost:3000 (admin / admin)
+
+### Grafana
+It uses influxdb.yml for datasource and robot-fleet.json from UI configuration
 
 ---
 
@@ -152,7 +184,7 @@ python3 subscriber.py
 Open Grafana at http://localhost:3000
 Navigate to: Dashboards → Omegga → Omegga Robot Fleet Monitor
 
-- http://localhost:3000/d/omegga-robot-fleet/omegga-robot-fleet-monitor?orgId=1&refresh=5s&from=1779032366688&to=1779033266688
+![Grafana Dashboard](influxdb-grafana/media/grafana.png)
 ---
 
 ## Data Flow per Message

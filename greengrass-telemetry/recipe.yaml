@@ -1,7 +1,7 @@
 ---
 RecipeFormatVersion: "2020-01-25"
 ComponentName: "com.omegga.telemetry"
-ComponentVersion: "1.0.4"
+ComponentVersion: "1.0.5"
 ComponentDescription: "Publishes robot telemetry (Motorcortex state, EtherCAT, spectroscopy, system metrics) to AWS IoT Core."
 ComponentPublisher: "Oben Sustam"
 ComponentConfiguration:
@@ -22,14 +22,14 @@ Manifests:
   - Platform:
       os: linux
     Artifacts:
-      - URI: "s3://omegga-gg-components-eu-central-1-407847267876/com.omegga.telemetry/1.0.4/greengrass-telemetry.zip"
+      - URI: "s3://telemetry-components-eu-central-1-407847267876/com.omegga.telemetry/1.0.5/greengrass-telemetry.zip"
         Unarchive: ZIP
     Lifecycle:
       Install:
         Script: "pip3 install --user -r {artifacts:decompressedPath}/greengrass-telemetry/requirements.txt"
-        Timeout: 120
+        Timeout: 30
       Run:
         Script: >
           python3 -u {artifacts:decompressedPath}/greengrass-telemetry/main.py
           --robot-id "{configuration:/RobotId}"
-        Timeout: 120
+        Timeout: 30

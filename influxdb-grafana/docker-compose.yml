@@ -1,0 +1,49 @@
+version: "3.8"
+
+# ─────────────────────────────────────────────
+# Omegga Robot Monitoring Stack
+# ─────────────────────────────────────────────
+# Usage:
+#   docker compose up -d
+#   Then run: python3 subscriber.py
+#
+# Grafana:  http://localhost:3000  (admin/admin)
+# InfluxDB: http://localhost:8086  (admin/adminpassword)
+# ─────────────────────────────────────────────
+
+services:
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: omegga-influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE:        setup
+      DOCKER_INFLUXDB_INIT_USERNAME:    admin
+      DOCKER_INFLUXDB_INIT_PASSWORD:    adminpassword
+      DOCKER_INFLUXDB_INIT_ORG:         omegga
+      DOCKER_INFLUXDB_INIT_BUCKET:      robot-telemetry
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: omegga-super-secret-token
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: omegga-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP:     "false"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - influxdb
+    restart: unless-stopped
+
+volumes:
+  influxdb-data:
+  grafana-data:

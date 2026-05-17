@@ -1,0 +1,165 @@
+{
+  "title": "Omegga Robot Fleet Monitor",
+  "uid": "omegga-robot-fleet",
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "CPU Temperature (°C)",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 8 },
+      "targets": [{
+        "datasource": "InfluxDB",
+        "query": "from(bucket: \"robot-telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"system_metrics\")\n  |> filter(fn: (r) => r._field == \"cpu_temp_c\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean)"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 65 },
+              { "color": "red", "value": 80 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "CPU Usage (%)",
+      "type": "timeseries",
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 8 },
+      "targets": [{
+        "datasource": "InfluxDB",
+        "query": "from(bucket: \"robot-telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"system_metrics\")\n  |> filter(fn: (r) => r._field == \"cpu_usage_pct\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean)"
+      }],
+      "fieldConfig": {
+        "defaults": { "unit": "percent", "min": 0, "max": 100 }
+      }
+    },
+    {
+      "id": 3,
+      "title": "RAM Used (MB)",
+      "type": "timeseries",
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 8 },
+      "targets": [{
+        "datasource": "InfluxDB",
+        "query": "from(bucket: \"robot-telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"system_metrics\")\n  |> filter(fn: (r) => r._field == \"ram_used_mb\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean)"
+      }],
+      "fieldConfig": {
+        "defaults": { "unit": "decmbytes" }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Eggs Processed",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 8, "w": 6, "h": 4 },
+      "targets": [{
+        "datasource": "InfluxDB",
+        "query": "from(bucket: \"robot-telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"production\")\n  |> filter(fn: (r) => r._field == \"eggs_processed\")\n  |> last()"
+      }],
+      "fieldConfig": {
+        "defaults": { "unit": "short", "color": { "mode": "thresholds" } }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Throughput (eggs/min)",
+      "type": "stat",
+      "gridPos": { "x": 6, "y": 8, "w": 6, "h": 4 },
+      "targets": [{
+        "datasource": "InfluxDB",
+        "query": "from(bucket: \"robot-telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"production\")\n  |> filter(fn: (r) => r._field == \"throughput_per_min\")\n  |> last()"
+      }],
+      "fieldConfig": {
+        "defaults": { "unit": "short" }
+      }
+    },
+    {
+      "id": 6,
+      "title": "EtherCAT Cycle Jitter (μs)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "targets": [{
+        "datasource": "InfluxDB",
+        "query": "from(bucket: \"robot-telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"ethercat\")\n  |> filter(fn: (r) => r._field == \"cycle_jitter_us\")\n  |> aggregateWindow(every: v.windowPeriod, fn: max)"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "µs",
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 30 },
+              { "color": "red", "value": 100 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "Joint Torques (Nm)",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+      "targets": [{
+        "datasource": "InfluxDB",
+        "query": "from(bucket: \"robot-telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"joint_state\")\n  |> filter(fn: (r) => r._field == \"torque_nm\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean)"
+      }],
+      "fieldConfig": {
+        "defaults": { "unit": "Nm" }
+      }
+    },
+    {
+      "id": 8,
+      "title": "Joint Positions (deg)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+      "targets": [{
+        "datasource": "InfluxDB",
+        "query": "from(bucket: \"robot-telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"joint_state\")\n  |> filter(fn: (r) => r._field == \"position_deg\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean)"
+      }],
+      "fieldConfig": {
+        "defaults": { "unit": "degree" }
+      }
+    },
+    {
+      "id": 9,
+      "title": "Spectroscopy Confidence",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 24, "w": 12, "h": 8 },
+      "targets": [{
+        "datasource": "InfluxDB",
+        "query": "from(bucket: \"robot-telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"spectroscopy\")\n  |> filter(fn: (r) => r._field == \"confidence\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean)"
+      }],
+      "fieldConfig": {
+        "defaults": { "unit": "percentunit", "min": 0, "max": 1 }
+      }
+    },
+    {
+      "id": 10,
+      "title": "Calibration Drift (%)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 24, "w": 12, "h": 8 },
+      "targets": [{
+        "datasource": "InfluxDB",
+        "query": "from(bucket: \"robot-telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"spectroscopy\")\n  |> filter(fn: (r) => r._field == \"calibration_drift_pct\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean)"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1.0 },
+              { "color": "red", "value": 3.0 }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

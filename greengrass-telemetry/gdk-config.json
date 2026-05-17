@@ -1,0 +1,19 @@
+{
+  "component": {
+    "com.omegga.telemetry": {
+      "author": "Oben Sustam",
+      "version": "1.0.4",
+      "build": {
+        "build_system": "zip",
+        "options": {
+          "zip_name": "greengrass-telemetry"
+        }
+      },
+      "publish": {
+        "bucket": "robot-components",
+        "region": "eu-central-1"
+      }
+    }
+  },
+  "gdk_version": "1.0.0"
+}

@@ -2,13 +2,15 @@
 
 ```
 Greengrass Component (robot)
-        ↓ IPC → MQTT
+        ↓ IPC (Unix socket)
+Greengrass Nucleus
+        ↓ MQTT over TLS (port 8883)
 AWS IoT Core
-        ↓ MQTT over TLS
+        ↓ MQTT over TLS (port 8883)
 subscriber.py
-        ↓
+        ↓ influxdb-client
 InfluxDB
-        ↓
+        ↓ Flux queries
 Grafana Dashboard
 ```
 
@@ -150,7 +152,7 @@ python3 subscriber.py
 Open Grafana at http://localhost:3000
 Navigate to: Dashboards → Omegga → Omegga Robot Fleet Monitor
 
-http://localhost:3000/d/omegga-robot-fleet/omegga-robot-fleet-monitor?orgId=1&refresh=5s&from=1779032366688&to=1779033266688
+- http://localhost:3000/d/omegga-robot-fleet/omegga-robot-fleet-monitor?orgId=1&refresh=5s&from=1779032366688&to=1779033266688
 ---
 
 ## Data Flow per Message
